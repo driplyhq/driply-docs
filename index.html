@@ -30,19 +30,14 @@
             padding: 40px 20px;
         }
         header {
-            margin-bottom: 40px;
+            margin-bottom: 32px;
+            text-align: center;
         }
         h1 {
             font-size: 32px;
             font-weight: 700;
-            margin: 0 0 12px 0;
-            letter-spacing: -0.04em;
-        }
-        .description {
-            font-size: 16px;
-            line-height: 1.5;
-            color: var(--text-secondary);
             margin: 0;
+            letter-spacing: -0.04em;
         }
         nav {
             display: flex;
@@ -56,11 +51,11 @@
         }
         a {
             background-color: var(--card-bg);
-            padding: 20px 24px;
+            padding: 22px 24px;
             text-decoration: none;
             color: var(--text);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             transition: background 0.1s ease;
         }
@@ -75,33 +70,22 @@
             font-weight: 500;
             transition: color 0.1s ease;
         }
-        .link-meta {
-            font-size: 12px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-family: "SF Mono", "Fira Code", monospace;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Driply</h1>
-            <p class="description">Центральный хаб документации, системной архитектуры и инженерных стандартов проекта.</p>
         </header>
         <nav>
             <a href="frontend/">
                 <span class="link-title">frontend</span>
-                <span class="link-meta">client-side docs</span>
             </a>
             <a href="backend/">
                 <span class="link-title">backend</span>
-                <span class="link-meta">server-side docs</span>
             </a>
             <a href="architecture/">
                 <span class="link-title">architecture</span>
-                <span class="link-meta">system diagrams</span>
             </a>
         </nav>
     </div>
