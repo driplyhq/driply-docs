@@ -3,50 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driply</title>
+    <title>Driply Docs</title>
     <style>
-        body, html {
-            height: 100%;
+        :root {
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text: #111111;
+            --text-secondary: #666666;
+            --border: #eaeaea;
+            --accent: #0070f3;
+        }
+        body {
             margin: 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #fff;
-            color: #000;
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
         .container {
-            text-align: center;
+            width: 100%;
+            max-width: 440px;
+            padding: 40px 20px;
+        }
+        header {
+            margin-bottom: 40px;
         }
         h1 {
-            font-size: 2rem;
-            font-weight: 500;
-            margin-bottom: 2rem;
-            letter-spacing: -0.02em;
+            font-size: 32px;
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            letter-spacing: -0.04em;
+        }
+        .description {
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            margin: 0;
         }
         nav {
             display: flex;
-            gap: 2rem;
-            justify-content: center;
+            flex-direction: column;
+            gap: 1px;
+            background-color: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         a {
+            background-color: var(--card-bg);
+            padding: 20px 24px;
             text-decoration: none;
-            color: #666;
-            font-size: 1rem;
-            transition: color 0.2s;
+            color: var(--text);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.1s ease;
         }
         a:hover {
-            color: #000;
+            background-color: #fdfdfd;
+        }
+        a:hover .link-title {
+            color: var(--accent);
+        }
+        .link-title {
+            font-size: 16px;
+            font-weight: 500;
+            transition: color 0.1s ease;
+        }
+        .link-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: "SF Mono", "Fira Code", monospace;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Driply</h1>
+        <header>
+            <h1>Driply</h1>
+            <p class="description">Центральный хаб документации, системной архитектуры и инженерных стандартов проекта.</p>
+        </header>
         <nav>
-            <a href="frontend/">frontend</a>
-            <a href="backend/">backend</a>
-            <a href="architecture/">architecture</a>
+            <a href="frontend/">
+                <span class="link-title">frontend</span>
+                <span class="link-meta">client-side docs</span>
+            </a>
+            <a href="backend/">
+                <span class="link-title">backend</span>
+                <span class="link-meta">server-side docs</span>
+            </a>
+            <a href="architecture/">
+                <span class="link-title">architecture</span>
+                <span class="link-meta">system diagrams</span>
+            </a>
         </nav>
     </div>
 </body>
