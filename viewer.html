@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Documentation</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        body {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 12px;
+            overflow-x: auto;
+            border-radius: 8px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        img {
+            max-width: 100%;
+        }
+    </style>
+    <link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
+</head>
+<body>
+
+<div class="markdown-body" id="content">Loading...</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const file = params.get("file");
+
+    fetch(file)
+        .then(res => res.text())
+        .then(md => {
+            document.getElementById("content").innerHTML = marked.parse(md);
+        });
+</script>
+
+</body>
+</html>
