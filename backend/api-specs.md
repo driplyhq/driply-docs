@@ -21,7 +21,7 @@ Session-based authentication via `starlette.middleware.sessions.SessionMiddlewar
 | Method | URL | Description | Request / Response |
 |---|---|---|---|
 | `POST` | `/auth/register` | Регистрация нового пользователя | **Req:** `{"username": "alex", "email": "alex@mail.com", "password": "secure123", "password_confirmation": "secure123"}`<br>**Res:** `201 {"message": "Пользователь зарегистрирован", "user": {"id": "uuid", "username": "alex", "email": "alex@mail.com"}}` |
-| `POST` | `/auth/login` | Вход в аккаунт (создание сессии) | **Req:** `{"username": "alex", "password": "secure123"}`<br>**Res:** `200 {"message": "Вы вошли в систему"}` (Cookie: `session_id=abc123; HttpOnly; Secure; SameSite=Strict`) |
+| `POST` | `/auth/login` | Вход в аккаунт (создание сессии) | **Req:** `{"email": "alex@mail.com", "password": "secure123"}`<br>**Res:** `200 {"message": "Вы вошли в систему"}` (Cookie: `session_id=abc123; HttpOnly; Secure; SameSite=Strict`) |
 | `POST` | `/auth/logout` | Завершение сессии | **Req:** Cookie: `session_id=abc123`<br>**Res:** `204` |
 | `GET` | `/auth/me` | Получение данных текущего пользователя | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"id": "uuid", "username": "alex", "email": "alex@mail.com", "avatar_url": null, "bio": "Fashion enthusiast"}`<br>**Error:** `401 {"detail": "Не авторизован", "code": "UNAUTHORIZED"}` |
 
@@ -32,8 +32,8 @@ Public profile data + current user management
 |---|---|---|---|
 | `GET` | `/users/{user_id}` | Публичный профиль пользователя | **Res:** `200 {"id": "uuid", "username": "alex", "bio": "...", "avatar_url": "...", "followers_count": 45, "following_count": 12, "is_following": false}` |
 | `GET` | `/profile/me` | Данные текущего пользователя | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"id": "uuid", "username": "alex", "bio": "...", "avatar_url": "...", "followers_count": 45, "following_count": 12}` |
-| `PUT` | `/profile/me` | Обновление профиля | **Req:** `{"username": "alex_new", "bio": "New bio"}`<br>**Res:** `200 {"message": "Профиль обновлен"}` |
-| `POST` | `/profile/avatar` | Загрузка аватара | **Req:** `multipart/form-data: image`<br>**Res:** `200 {"message": "Аватар загружен", "avatar_url": "https://s3/..."}` |
+| `PATCH` | `/profile/me` | Обновление профиля | **Req:** `{"username": "alex_new", "bio": "New bio"}`<br>**Res:** `200 {"message": "Профиль обновлен", "user": "{"id": "uuid", "username": "alex", "bio": "...", "avatar_url": "...", "followers_count": 45, "following_count": 12}"}` |
+| `POST` | `/profile/avatar` | Загрузка аватара | **Req:** `multipart/form-data: image`<br>**Res:** `200 {"message": "Аватар загружен", "file_url": "https://s3/..."}` |
 | `GET` | `/profile/outfits` | Публикации текущего пользователя | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"outfits": [...], "total": 15, "page": 1}` |
 
 ## 3. Catalog & Items (Free Mode)
