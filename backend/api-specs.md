@@ -43,7 +43,7 @@ Public profile data + current user management
 
 | Method | URL | Description | Request / Response |
 |---|---|---|---|
-| `GET` | `/items` | Каталог вещей с фильтрацией и поиском | **Req:** Cookie: `session_id=abc123` (для `is_liked`)<br>`?category_id=uuid&style_id=uuid&brand_id=uuid&search=leather&page=1&limit=20`<br>**Res:** `200 {"items": [{"id": "uuid", "name": "Leather Sneakers", "category": {"id": "uuid", "name": "shoes"}, "style": {"id": "uuid", "name": "minimalist"}, "brand": {"id": "uuid", "name": "Nike", "image_url": "..."}, "image_url": "...", "is_liked": false, "likes_count": 5}], "total": 45, "page": 1}`<br>**Error:** `404 {"detail": {"message": "Категория не найдена", "code": "category_not_found"}}` (при фильтре по несуществующему id) |
+| `GET` | `/items` | Каталог вещей с фильтрацией и поиском | **Req:** Cookie: `session_id=abc123` (для `is_liked`)<br>`?category_id=uuid&style_id=uuid&brand_id=uuid&search=leather&page=1&limit=20`<br>**Res:** `200 {"items": [{"id": "uuid", "name": "Leather Sneakers", "category": {"id": "uuid", "name": "shoes"}, "style": {"id": "uuid", "name": "minimalist"}, "brand": {"id": "uuid", "name": "Nike", "image_url": "..."}, "image_url": "...", "cutout_url": "...", "is_liked": false, "likes_count": 5}], "total": 45, "page": 1}`<br>**Error:** `404 {"detail": {"message": "Категория не найдена", "code": "category_not_found"}}` (при фильтре по несуществующему id) |
 | `GET` | `/items/{item_id}` | Детали вещи | **Req:** Cookie: `session_id=abc123` (для `is_liked`)<br>**Res:** `200 {"id": "uuid", "name": "Leather Sneakers", "description": "...", "category": {"id": "uuid", "name": "shoes"}, "style": {"id": "uuid", "name": "minimalist"}, "brand": {"id": "uuid", "name": "Nike", "image_url": "..."}, "image_urls": ["...", "..."], "is_liked": false, "likes_count": 5}`<br>**Error:** `404 {"detail": {"message": "Вещь не найдена", "code": "item_not_found"}}` |
 | `POST` | `/items/{item_id}/like` | Лайк вещи (Free Mode swipe) | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Добавлен лайк", "likes_count": 12}`<br>**Error:** `409 {"detail": {"message": "Вещь уже в лайках", "code": "already_liked"}}` |
 | `DELETE` | `/items/{item_id}/like` | Отмена лайка вещи | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Лайк удален", "likes_count": 11}`<br>**Error:** `400 {"detail": {"message": "Вещь не в лайках", "code": "not_liked"}}` |
@@ -52,6 +52,8 @@ Public profile data + current user management
 | `GET` | `/catalog/brands` | Список брендов | **Req:** `?page=1&limit=100`<br>**Res:** `200 {"brands": [{"id": "uuid", "name": "Nike", "image_url": "..."}, {"id": "uuid", "name": "Zara", "image_url": "..."}], "total": 50, "page": 1}` |
 
 > **Примечание:** `is_favorited` для вещей удалён — избранного вещей нет, только лайки (`is_liked` / `likes_count`). Поиск (`search`) работает по названию вещи, описанию и имени бренда.
+> **Примечание:** `cutout_url` — версия главной картинки без фона (для коллаж-редактора); null = вырезка ещё не создана (рендерить оригинал/плейсхолдер).
+
 
 ## 4. Outfits & Feed
 Создание, лента, лайки, картинки, комментарии аутфитов
