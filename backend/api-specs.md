@@ -54,36 +54,42 @@ Public profile data + current user management
 > **Примечание:** `is_favorited` для вещей удалён — избранного вещей нет, только лайки (`is_liked` / `likes_count`). Поиск (`search`) работает по названию вещи, описанию и имени бренда.
 
 ## 4. Outfits & Feed
-Создание, публикация, лента аутфитов
+Создание, лента, лайки, картинки, комментарии аутфитов
 
-> **Статус:** раздел не реализован (на будущие недели). Контракт ниже — целевой.
+> **Статус:** реализовано (feat/6-week). Черновики и публикация (`status: draft`, `POST /publish`, `published_at`) **вырезаны из MVP** — созданный аутфит сразу опубликован. `is_saved` и сохранённые аутфиты вырезаны (см. раздел 5). Поле `style` в деталях не реализовано (в модели его нет — открытый вопрос). Лента — тикток-паттерн: карточка = полный пост.
 
 | Method | URL | Description | Request / Response |
 |---|---|---|---|
-| `GET` | `/outfits` | Лента аутфитов (по дате или популярности) | **Req:** `?sort=date&page=1&limit=20`<br>**Res:** `200 {"outfits": [...], "total": 100, "page": 1}` |
-| `GET` | `/outfits/{outfit_id}` | Детали аутфита | **Req:** Cookie: `session_id=abc123` (для `is_liked`/`is_saved`)<br>**Res:** `200 {"id": "uuid", "author": {...}, "title": "...", "description": "...", "style": "minimalist", "published_at": "...", "items": [{"item_id": "uuid", "name": "...", "image_url": "..."}], "likes_count": 12, "is_liked": false, "is_saved": false}`<br>**Error:** `404 {"detail": {"message": "Аутфит не найден", "code": "outfit_not_found"}}` |
-| `POST` | `/outfits` | Создание черновика аутфита | **Req:** Cookie: `session_id=abc123`<br>`{"items": ["item_id_1", "item_id_2"], "title": "Beach day", "description": "Casual look"}`<br>**Res:** `201 {"message": "Черновик создан", "id": "uuid", "status": "draft"}` |
-| `PUT` | `/outfits/{outfit_id}` | Редактирование черновика | **Req:** Cookie: `session_id=abc123`<br>`{"items": ["item_id_1"], "title": "Updated look", "description": "..."}`<br>**Res:** `200 {"message": "Аутфит обновлен"}`<br>**Error:** `404 {"detail": {"message": "Аутфит не найден", "code": "outfit_not_found"}}` |
-| `DELETE` | `/outfits/{outfit_id}` | Удаление аутфита | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Аутфит удален"}` |
-| `POST` | `/outfits/{outfit_id}/publish` | Публикация аутфита | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Аутфит опубликован", "published_at": "2024-06-10T14:30:00Z"}` |
-| `POST` | `/outfits/{outfit_id}/like` | Лайк аутфита | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Добавлен лайк", "likes_count": 13}` |
-| `DELETE` | `/outfits/{outfit_id}/like` | Отмена лайка аутфита | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Лайк удален", "likes_count": 12}` |
+| `GET` | `/outfits` | Лента аутфитов (публичная, полные карточки) | **Req:** `?sort=date&page=1&limit=20` (cookie опционален — для `is_liked`)<br>**Res:** `200 {"outfits": [{"id": "uuid", "title": "...", "description": "...", "images": ["url0", "url1"], "items": [{"item_id": "uuid", "name": "...", "image_url": "..."}], "likes_count": 12, "comments_count": 3, "is_liked": false, "author": {"id": "uuid", "username": "alex", "avatar_url": "..."}}], "page": 1}`<br>**Без `total`** — конец ленты: пришло меньше `limit`. `images` — все холсты поста по `order` (свайп вбок). В `items` возможны дубли (две одинаковые вещи — легально). Анониму `is_liked=false` |
+| `GET` | `/outfits/{outfit_id}` | Деталь аутфита (та же полная карточка) | **Req:** cookie опционален<br>**Res:** `200` — карточка как в ленте<br>**Error:** `404 {"detail": {"message": "Аутфит не найден", "code": "outfit_not_found"}}` |
+| `POST` | `/outfits` | Создание аутфита (сразу опубликован) | **Req:** Cookie: `session_id`<br>`{"items": ["item_id_1", "item_id_2"], "title": "Beach day", "description": "Casual look"}` — `items` min 1, дубли легальны; `title` ≤100, `description` ≤500, оба опциональны<br>**Res:** `201 {"message": "Аутфит создан", "id": "uuid"}`<br>**Error:** `404 item_not_found` (несуществующая вещь), `422` (пустой items) |
+| `PUT` | `/outfits/{outfit_id}` | Редактирование подписи (**только** title/description) | **Req:** Cookie: `session_id`<br>`{"title": "...", "description": "..."}` — оба опциональны, `null`/отсутствие = не менять. **Состав не редактируется** — полная переделка = DELETE + POST (лайки не переносятся)<br>**Res:** `200 {"message": "Аутфит обновлен"}`<br>**Error:** `404 outfit_not_found`; `403 {"detail": {"message": "Нет прав на изменение аутфита", "code": "forbidden_to_change_outfit"}}` |
+| `DELETE` | `/outfits/{outfit_id}` | Удаление аутфита (только автор) | **Req:** Cookie: `session_id`<br>**Res:** `200 {"message": "Аутфит удален"}`<br>**Error:** `404 outfit_not_found`; `403 forbidden_to_change_outfit` |
+| `POST` | `/outfits/{outfit_id}/images` | Загрузка холстов поста (PNG из коллаж-редактора) | **Req:** Cookie: `session_id`; `multipart/form-data: images[]` — порядок файлов = порядок холстов (`order` 0,1,2…; order=0 — обложка)<br>**Res:** `201 {"message": "Изображения аутфита загружены", "images": ["url", ...]}`<br>**Error:** `404 outfit_not_found`; `403 forbidden_to_change_outfit`; **`409 {"detail": {"message": "Аутфит уже имеет изображения.", "code": "outfit_already_has_images"}}`** — повторная загрузка запрещена (ретрай = успех первой) |
+| `POST` | `/outfits/{outfit_id}/like` | Лайк аутфита | **Req:** Cookie: `session_id`<br>**Res:** `200 {"message": "Добавлен лайк", "likes_count": 13}`<br>**Error:** `404 outfit_not_found`; `409 {"detail": {"message": "...", "code": "already_liked"}}` |
+| `DELETE` | `/outfits/{outfit_id}/like` | Отмена лайка | **Req:** Cookie: `session_id`<br>**Res:** `200 {"message": "Лайк удален", "likes_count": 12}`<br>**Error:** `404 outfit_not_found`; `400 {"detail": {"message": "...", "code": "not_liked"}}` |
+| `POST` | `/outfits/{outfit_id}/comments` | Добавить комментарий | **Req:** Cookie: `session_id`<br>`{"text": "Огонь образ!"}` — 1..500 символов<br>**Res:** `201 {"message": "Комментарий добавлен", "id": "uuid"}`<br>**Error:** `404 outfit_not_found`; `422` (пустой/длинный text) |
+| `GET` | `/outfits/{outfit_id}/comments` | Комментарии поста (публично, новые сверху) | **Req:** `?page=1&limit=20`<br>**Res:** `200 {"comments": [{"id": "uuid", "text": "...", "created_at": "2026-07-12T15:30:00", "author": {"id": "uuid", "username": "...", "avatar_url": "..."}}], "page": 1}`<br>**Error:** `404 outfit_not_found` |
+| `DELETE` | `/comments/{comment_id}` | Удалить комментарий (автор или админ) | **Req:** Cookie: `session_id`<br>**Res:** `200 {"message": "Комментарий удален"}`<br>**Error:** `404 {"detail": {"message": "Комментарий не найден", "code": "comment_not_found"}}`; `403 {"detail": {"message": "...", "code": "forbidden_to_delete_comment"}}` |
+
+> **Примечания по разделу 4:**
+> - Комментарии — плоские (без тредов), редактирования и лайков комментов нет (кандидаты — на созвон).
+> - `sort=date` — единственная реализованная сортировка; формат `sort=popular` — открытый вопрос.
+> - Рекомендуемый `limit` для тикток-ленты — 5–8 (карточки полные, тяжёлые).
+> - Открытые вопросы лиду: `style` в карточке; `sort=popular`; семантика бана; конвенция обложки (`order` vs `is_main`).
 
 ## 5. Favorites & Interactions
 Сохранение, избранное, стили, бренды
 
 | Method | URL | Description | Request / Response |
 |---|---|---|---|
-| `GET` | `/favorites/outfits` | Сохранённые аутфиты | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"outfits": [{"id": "uuid", "title": "...", "image_url": "...", "published_at": "..."}]}` |
-| `POST` | `/favorites/outfits/{outfit_id}` | Сохранить аутфит | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Аутфит сохранен"}` |
-| `DELETE` | `/favorites/outfits/{outfit_id}` | Удалить сохранённый аутфит | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Аутфит удален из сохраненных"}` |
 | `GET` | `/favorites/styles` | Избранные стили | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"styles": [{"id": "uuid", "name": "minimalist"}]}` |
 | `POST` | `/favorites/styles/{style_id}` | Добавить стиль в избранное | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Стиль добавлен"}`<br>**Error:** `409 {"detail": {"message": "Стиль уже в избранном", "code": "already_in_favorites"}}` |
 | `GET` | `/favorites/brands` | Избранные бренды | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"brands": [{"id": "uuid", "name": "Nike", "image_url": "..."}]}` |
 | `POST` | `/favorites/brands/{brand_id}` | Добавить бренд в избранное | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Бренд добавлен"}`<br>**Error:** `409 {"detail": {"message": "Бренд уже в избранном", "code": "already_in_favorites"}}` |
 | `DELETE` | `/favorites/brands/{brand_id}` | Удалить бренд из избранного | **Req:** Cookie: `session_id=abc123`<br>**Res:** `200 {"message": "Бренд удален из избранного"}` |
 
-> **Примечание:** избранное вещей (`favorites/items`) удалено из скоупа — для вещей только лайки. `favorites/styles` и `favorites/outfits` — на будущие недели. `favorites/brands` — реализовано.
+> **Примечание:** избранное вещей (`favorites/items`) и **сохранённые аутфиты (`favorites/outfits`) вырезаны из MVP** — `is_saved` нигде не отдаётся. `favorites/styles` — на будущие недели. `favorites/brands` — реализовано.
 
 ## 6. Social & Follows
 Подписки, списки подписчиков/подписок
